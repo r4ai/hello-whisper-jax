@@ -1,0 +1,19 @@
+version: '3'
+services:
+  app:
+    environment:
+      - LD_LIBRARY_PATH=.../**/torch/lib
+    build:
+      dockerfile: ./Dockerfile
+      context: .
+    volumes:
+      - ./audio:/app/audio
+      - ./entrypoint.sh:/app/entrypoint.sh
+      - ./main.py:/app/main.py
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
