@@ -1,18 +1,12 @@
-from faster_whisper import WhisperModel
+from whisper_jax import FlaxWhisperPipline
 
-model_size = "large-v3"
+# instantiate pipeline
+pipeline = FlaxWhisperPipline("openai/whisper-large-v2")
 
-# Run on GPU with FP16
-model = WhisperModel(model_size, device="cuda", compute_type="float16")
+# JIT compile the forward call - slow, but we only do once
+text = pipeline("audio/stereo_diarization.wav")
 
-# or run on GPU with INT8
-# model = WhisperModel(model_size, device="cuda", compute_type="int8_float16")
-# or run on CPU with INT8
-# model = WhisperModel(model_size, device="cpu", compute_type="int8")
+# used cached function thereafter - super fast!!
+text = pipeline("audio/stereo_diarization.wav")
 
-segments, info = model.transcribe("./audio/stereo_diarization.wav", beam_size=5)
-
-print("Detected language '%s' with probability %f" % (info.language, info.language_probability))
-
-for segment in segments:
-    print("[%.2fs -> %.2fs] %s" % (segment.start, segment.end, segment.text))
+print(text)
